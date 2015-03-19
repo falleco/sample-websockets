@@ -1,0 +1,72 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sample Django WebSocket</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+    <style type="text/css">
+        div {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .heart {
+            color: red;
+            font-size: 3em;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <p>Love you, Python!</p>
+
+    <p id="time"></p>
+    <i class="fa fa-heart heart"></i>
+
+    <div>
+        <button id="beat">Bater!</button>
+    </div>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="{% static 'js/socket.io.js' %}"></script>
+<script type="text/javascript">
+    function pulse(back) {
+        $('.heart').animate(
+                {
+                    'font-size': (back) ? '3em' : '5em',
+                    'opacity': (back) ? 0.5 : 1
+                }, 500, function () {
+                    if (!back) {
+                        pulse(!back)
+                    }
+                }
+        );
+    }
+
+    var socket = io.connect("/beat");
+
+    // On Connection Event
+    socket.on('connect', function (data) {
+        console.log("Connected....");
+        socket.emit('join', 'hello!');
+    });
+
+    socket.on('pulse', function (msg) {
+        console.log("PULSING...");
+        pulse(false);
+    });
+
+    $("#beat").click(function () {
+        console.log("Beat Click...");
+        socket.emit('beat', { data: "red"});
+    });
+
+</script>
+</body>
+</html>

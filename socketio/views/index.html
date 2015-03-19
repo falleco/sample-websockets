@@ -1,0 +1,81 @@
+<html>
+<head>
+    <title>SocketIO Sample</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <!--<script src="https://cdn.socket.io/socket.io-1.3.4.js"></script>-->
+    <script type="text/javascript" src="/static/socketio.js"></script>
+
+    <style type="text/css">
+        div {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .heart {
+            color: red;
+            font-size: 3em;
+        }
+    </style>
+
+    <script type="text/javascript">
+        function pulse(back) {
+            $('.heart').animate(
+                    {
+                        'font-size': (back) ? '3em' : '5em',
+                        'opacity': (back) ? 0.5 : 1
+                    }, 500, function () {
+                        if (!back) {
+                            pulse(!back)
+                        }
+                    }
+            );
+        }
+
+        function getAppData() {
+            // Create our socket connection
+            var socket = io.connect("/beat");
+
+            // On Connection Event
+            socket.on('connect', function (data) {
+                console.log("Connected....");
+                socket.emit('join', 'hello!');
+            });
+
+            // On Receive Event
+            socket.on('pulse', function (data) {
+                console.log("PULSING...");
+                pulse(false);
+            });
+
+            $("#beat").click(function () {
+                console.log("Beat Click...");
+                socket.emit('beat', { data: "red"});
+            });
+        }
+
+        $(document).ready(function () {
+            getAppData();
+
+            setInterval(function () {
+                var d = new Date();
+                $("#time").html(d.toLocaleString());
+            }, 500);
+        });
+    </script>
+
+</head>
+<body>
+<div>
+    <p>Love you, Python!</p>
+
+    <p id="time"></p>
+    <i class="fa fa-heart heart"></i>
+
+    <div>
+        <button id="beat">Bater!</button>
+    </div>
+</div>
+
+</body>
+</html>

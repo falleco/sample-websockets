@@ -1,0 +1,73 @@
+<html>
+<head>
+    <title>Ajax Polling Sample</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+    <style type="text/css">
+        div {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .heart {
+            color: red;
+            font-size: 3em;
+        }
+    </style>
+
+    <script type="text/javascript">
+        function pulse(back) {
+            $('.heart').animate(
+                    {
+                        'font-size': (back) ? '3em' : '5em',
+                        'opacity': (back) ? 0.5 : 1
+                    }, 500, function () {
+                        if (!back) {
+                            pulse(!back)
+                        }
+                    }
+            );
+        }
+
+        function getServerData() {
+            $.ajax({
+                dataType: "json",
+                url: "/api/poll",
+                success: function (data) {
+                    if (data["beat"]) {
+                        console.log("Tum... Dum...");
+                        pulse(false);
+                    }
+                },
+
+                complete: function () {
+                    setTimeout(function () {
+                        getServerData()
+                    }, 1000);
+                },
+
+                timeout: 15000
+            });
+        }
+
+        $(document).ready(function () {
+            getServerData();
+
+            setInterval(function () {
+                var d = new Date();
+                $("#time").html(d.toLocaleString());
+            }, 500);
+        });
+    </script>
+
+</head>
+<body>
+<div>
+    <p>Love you, Python!</p>
+    <p id="time"></p>
+    <i class="fa fa-heart heart"></i>
+</div>
+
+</body>
+</html>
